@@ -20,17 +20,15 @@ def current_price():
     if not latest_price:
         return jsonify({'msg': 'No data available'}), 404
     response = {
-        #'price_usd': latest_price.price_usd,
         'price_eur': latest_price.price_eur,
         'price_czk': latest_price.price_czk,
-        #'currency': 'BTC',
         'client_request_time': datetime.utcnow().isoformat(),
         'server_data_time': latest_price.timestamp.isoformat()
     }
     return jsonify(response)
 
 @app.route('/average_price', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 def average_price():
     period = request.args.get('period', 'daily')  # 'daily' or 'monthly'
     now = datetime.utcnow()
@@ -48,12 +46,9 @@ def average_price():
     avg_price_czk = sum([p.price_czk for p in prices]) / len(prices)
 
     response = {
-        #'average_price_usd': avg_price_usd,
         'average_price_eur': avg_price_eur,
         'average_price_czk': avg_price_czk,
-        #'currency': 'BTC',
-        'client_request_time': datetime.utcnow().isoformat(),
-        'server_data_time': now.isoformat()
+        'client_request_time': datetime.utcnow().isoformat()
     }
     return jsonify(response)
 
