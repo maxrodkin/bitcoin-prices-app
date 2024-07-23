@@ -29,6 +29,18 @@ spec:
       value: "postgresql://username:password@localhost:5432/dbname"
     ports:
     - containerPort: 5000
+    readinessProbe:
+      httpGet:
+        path: /current_price
+        port: 5000
+      initialDelaySeconds: 10
+      periodSeconds: 5
+    livenessProbe:
+      httpGet:
+        path: /current_price
+        port: 5000
+      initialDelaySeconds: 15
+      periodSeconds: 20
 
   - name: fetch-task
     image: maxi4/bitcoin-prices-app:latest
