@@ -17,6 +17,7 @@ services:
     build:
       context: .
     container_name: flask-app
+    command: ["python", "app/server.py"]    
     environment:
       SQLALCHEMY_DATABASE_URI: postgresql://username:password@postgres:5432/dbname
     depends_on:
