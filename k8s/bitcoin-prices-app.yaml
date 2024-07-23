@@ -1,7 +1,13 @@
 apiVersion: v1
+kind: Namespace
+metadata:
+  name: bitcoin-app-namespace
+---
+apiVersion: v1
 kind: Pod
 metadata:
   name: all-services-pod
+  namespace: bitcoin-app-namespace
   labels:
     app: all-services
 spec:
@@ -57,6 +63,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flask-app-service
+  namespace: bitcoin-app-namespace
 spec:
   type: NodePort
   ports:
