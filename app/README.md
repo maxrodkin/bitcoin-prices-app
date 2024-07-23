@@ -19,23 +19,50 @@ the microservice and any related additional resources should be deployed into ap
 use Helm for this deployment.
 Store the codebase in GitHub, and please share the link for the repository with us.
 
-## Build and publish docker image
+## Build and publish docker image. You should use your own tag and login
+
+```
 docker build . -t maxi4/bitcoin-prices-app
 docker login
 docker push maxi4/bitcoin-prices-app
+```
 
-## Install minikube k8s cluster
+## Install minikube k8s cluster as a minimal MVP
 
+```
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 sudo ln -s /usr/local/bin/minikube /usr/bin/minikube
 minikube start
 alias kl="minikube kubectl -- "
 kl get ns
+```
+
+## Get the IP of minikube controlplane
+
+```
+kl get no -o wide
+NAME       STATUS   ROLES           AGE   VERSION   INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION                  CONTAINER-RUNTIME
+minikube   Ready    control-plane   45m   v1.30.0   192.168.49.2
+```
+```
+export app_ip=192.168.49.2
+```
+
+kl apply -f k8s/bitcoin-prices-app.yaml
 
 
-curl -X POST http://localhost:5000/login \
-     -H "Content-Type: application/json" \
-     -d '{"username":"admin", "password":"password"}'
+## Let`s ping the app
+
+```
+curl -X GET http://$app_ip:30000/ping
+{
+  "msg": "pong OK"
+}
+```
+
+## Let`s login and get the token to env var
+
+token=$(curl -X POST http://$app_ip:30000/login      -H "Content-Type: application/json"      -d '{"username":"admin", "password":"password"}' | jq -r '.access_token')
 
 $ curl http://localhost:5000/current_price
 {
@@ -45,9 +72,7 @@ $ curl http://localhost:5000/current_price
   "server_data_time": "2024-07-23T13:56:06.511453"
 }
 
-token={get the token from above command}
-
-[ec2-user@ip-10-0-4-121 bin]$ curl -X GET http://localhost:5000/average_price -H "Authorization: Bearer $token"
+[ec2-user@ip-10-0-4-121 bin]$ curl -X GET http://$app_ip:30000/average_price -H "Authorization: Bearer $token"
 {
   "average_price_czk": 1542800.7561810217,
   "average_price_eur": 61126.0722561147,

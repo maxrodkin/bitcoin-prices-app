@@ -18,7 +18,7 @@ def login():
     return jsonify({'msg': 'Bad username or password'}), 401
 
 @app.route('/current_price', methods=['GET'])
-#@jwt_required()
+@jwt_required()
 def current_price():
     latest_price = BitcoinPrice.query.order_by(BitcoinPrice.timestamp.desc()).first()
     if not latest_price:
