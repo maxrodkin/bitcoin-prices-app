@@ -1,0 +1,11 @@
+# service-postgres.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  namespace: flask-app-namespace
+spec:
+  ports:
+  - port: 5432
+  selector:
+    app: postgres

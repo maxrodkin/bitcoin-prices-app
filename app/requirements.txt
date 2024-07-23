@@ -1,0 +1,7 @@
+flask
+flask_sqlalchemy
+requests
+flask-jwt-extended
+apscheduler
+psycopg2-binary
+flask-sqlalchemy
