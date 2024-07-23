@@ -3,9 +3,12 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 import pytz
 from datetime import datetime
+import os
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@localhost/bitcoin'
+#app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:password@postgres/bitcoin'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ['SQLALCHEMY_DATABASE_URI']
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = 'super-secret'  # Change this to a random secret key in production
 
