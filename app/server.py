@@ -6,6 +6,10 @@ from datetime import datetime
 
 jwt = JWTManager(app)
 
+@app.route('/ping', methods=['GET'])
+def pong():
+    return jsonify({'msg': 'pong OK'}), 200
+
 @app.route('/login', methods=['POST'])
 def login():
     if request.json.get('username') == 'admin' and request.json.get('password') == 'password':  # Change this to use a secure authentication mechanism in production
