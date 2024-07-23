@@ -6,6 +6,6 @@ WORKDIR /app
 COPY app/requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 
-COPY . .
+COPY app/*.py .
 EXPOSE 5000
-CMD ["python", "app/server.py"]
+CMD ["python", "server.py"]
