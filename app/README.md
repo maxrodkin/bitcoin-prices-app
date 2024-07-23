@@ -47,7 +47,7 @@ minikube   Ready    control-plane   45m   v1.30.0   192.168.49.2
 ```
 export app_ip=192.168.49.2
 ```
-
+## kubectl deployment
 kl apply -f k8s/bitcoin-prices-app.yaml
 
 
@@ -62,9 +62,11 @@ curl -X GET http://$app_ip:30000/ping
 
 ## Let`s login and get the token to env var
 
-token=$(curl -X POST http://$app_ip:30000/login      -H "Content-Type: application/json"      -d '{"username":"admin", "password":"password"}' | jq -r '.access_token')
+```
+$ token=$(curl -X POST http://$app_ip:30000/login      -H "Content-Type: application/json"      -d '{"username":"admin", "password":"password"}' | jq -r '.access_token') && echo $token
+```
 
-$ curl http://localhost:5000/current_price
+$ curl -X GET http://$app_ip:30000/current_price -H "Authorization: Bearer $token"
 {
   "client_request_time": "2024-07-23T13:57:04.070820",
   "price_czk": 1531457.6311650001,

@@ -1,0 +1,5 @@
+apiVersion: v2
+name: bitcoin-app-chart
+description: A Helm chart for deploying Bitcoin Price App
+version: 0.1.0
+appVersion: "1.0"
