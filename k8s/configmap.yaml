@@ -1,8 +1,0 @@
-# configmap.yaml
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: flask-config
-  namespace: flask-app-namespace
-data:
-  SQLALCHEMY_DATABASE_URI: "postgresql://username:password@postgres:5432/dbname"

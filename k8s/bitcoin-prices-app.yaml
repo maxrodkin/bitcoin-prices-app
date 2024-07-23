@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: all-services-pod
+  labels:
+    app: all-services
+spec:
+  containers:
+  - name: postgres
+    image: postgres:13
+    env:
+    - name: POSTGRES_USER
+      valueFrom:
+        secretKeyRef:
+          name: db-secret
+          key: POSTGRES_USER
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: db-secret
+          key: POSTGRES_PASSWORD
+    - name: POSTGRES_DB
+      valueFrom:
+        secretKeyRef:
+          name: db-secret
+          key: POSTGRES_DB
+    volumeMounts:
+    - name: postgres-storage
+      mountPath: /var/lib/postgresql/data
+    ports:
+    - containerPort: 5432
+
+  - name: flask-app
+    image: maxi4/bitcoin-prices-app:latest
+    command: ["python", "server.py"]
+    env:
+    - name: SQLALCHEMY_DATABASE_URI
+      value: "postgresql://username:password@localhost:5432/dbname"
+    ports:
+    - containerPort: 5000
+
+  - name: fetch-task
+    image: maxi4/bitcoin-prices-app:latest
+    command: ["python", "fetch_and_store_prices.py"]
+    env:
+    - name: SQLALCHEMY_DATABASE_URI
+      value: "postgresql://username:password@localhost:5432/dbname"
+
+  volumes:
+  - name: postgres-storage
+    emptyDir: {}
+---
+
+apiVersion: v1
+kind: Secret
+metadata:
+  name: db-secret
+type: Opaque
+data:
+  POSTGRES_USER: dXNlcm5hbWU=
+  POSTGRES_PASSWORD: cGFzc3dvcmQ=
+  POSTGRES_DB:ZGJuYW1l
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-app-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 5000
+    targetPort: 5000
+  selector:
+    app: all-services
