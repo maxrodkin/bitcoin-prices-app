@@ -24,6 +24,14 @@ docker build . -t maxi4/bitcoin-prices-app
 docker login
 docker push maxi4/bitcoin-prices-app
 
+## Install minikube k8s cluster
+
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+sudo ln -s /usr/local/bin/minikube /usr/bin/minikube
+minikube start
+alias kl="minikube kubectl -- "
+kl get ns
+
 
 curl -X POST http://localhost:5000/login \
      -H "Content-Type: application/json" \
