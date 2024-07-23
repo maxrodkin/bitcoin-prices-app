@@ -10,20 +10,11 @@ spec:
     image: postgres:13
     env:
     - name: POSTGRES_USER
-      valueFrom:
-        secretKeyRef:
-          name: db-secret
-          key: POSTGRES_USER
+      value: "username"
     - name: POSTGRES_PASSWORD
-      valueFrom:
-        secretKeyRef:
-          name: db-secret
-          key: POSTGRES_PASSWORD
+      value: "password"
     - name: POSTGRES_DB
-      valueFrom:
-        secretKeyRef:
-          name: db-secret
-          key: POSTGRES_DB
+      value: "dbname"
     volumeMounts:
     - name: postgres-storage
       mountPath: /var/lib/postgresql/data
@@ -50,26 +41,15 @@ spec:
   - name: postgres-storage
     emptyDir: {}
 ---
-
-apiVersion: v1
-kind: Secret
-metadata:
-  name: db-secret
-type: Opaque
-data:
-  POSTGRES_USER: dXNlcm5hbWU=
-  POSTGRES_PASSWORD: cGFzc3dvcmQ=
-  POSTGRES_DB:ZGJuYW1l
----
-
 apiVersion: v1
 kind: Service
 metadata:
   name: flask-app-service
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
   - port: 5000
     targetPort: 5000
+    nodePort: 30000 # NodePort range is 30000-32767
   selector:
     app: all-services
