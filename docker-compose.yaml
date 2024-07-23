@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    environment:
+      POSTGRES_USER: username
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dbname
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  flask-app:
+    build:
+      context: .
+    container_name: flask-app
+    environment:
+      SQLALCHEMY_DATABASE_URI: postgresql://username:password@postgres:5432/dbname
+    depends_on:
+      - postgres
+    ports:
+      - "5000:5000"
+
+  fetch-task:
+    build:
+      context: .
+    container_name: fetch-task
+    command: ["python", "app/fetch_and_store_prices.py"]
+    environment:
+      SQLALCHEMY_DATABASE_URI: postgresql://username:password@postgres:5432/dbname
+    depends_on:
+      - postgres
+
+volumes:
+  postgres-data:
