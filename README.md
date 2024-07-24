@@ -27,7 +27,7 @@ docker login
 docker push maxi4/bitcoin-prices-app
 ```
 
-## Install minikube k8s cluster as a minimal MVP
+## Install minikube k8s cluster as a minimal MVP and use the kl alias to reach it
 
 ```
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
@@ -53,12 +53,12 @@ or in a case of minikube
 $ app_ip=$(kl get nodes -o wide --no-headers | awk -v OFS='\t\t' 'FNR > 1; {print $6}') ; echo $app_ip
 ```
 
-## kubectl deployment
+## Deploy the app as a kubectl deployment
 ```
 kl apply -f k8s/bitcoin-prices-app.yaml
 ```
 
-## or Helm deployment
+## or Helm deployment. In this case you can tune the params of deployment
 ```
 helm install my-bitcoin-app helm-chart/
 helm status my-bitcoin-app
@@ -78,7 +78,9 @@ curl -X GET http://$app_ip:30000/ping
 ```
 $ token=$(curl -X POST http://$app_ip:30000/login      -H "Content-Type: application/json"      -d '{"username":"admin", "password":"password"}' | jq -r '.access_token') && echo $token
 ```
+## Let`s read the current prices
 
+```
 $ curl -X GET http://$app_ip:30000/current_price -H "Authorization: Bearer $token"
 {
   "client_request_time": "2024-07-23T13:57:04.070820",
@@ -86,10 +88,21 @@ $ curl -X GET http://$app_ip:30000/current_price -H "Authorization: Bearer $toke
   "price_eur": 60676.65539100001,
   "server_data_time": "2024-07-23T13:56:06.511453"
 }
+```
 
-[ec2-user@ip-10-0-4-121 bin]$ curl -X GET http://$app_ip:30000/average_price -H "Authorization: Bearer $token"
+## Let`s read the average prices (daily by default)
+
+```
+$ curl -X GET http://$app_ip:30000/average_price -H "Authorization: Bearer $token"
 {
   "average_price_czk": 1542800.7561810217,
   "average_price_eur": 61126.0722561147,
   "client_request_time": "2024-07-23T13:59:03.229565"
 }
+```
+
+## Let`s read the average prices (monthly)
+
+```
+$ curl -X GET http://$app_ip:30000/average_price?period=monthly -H "Authorization: Bearer $token"
+```
