@@ -11,4 +11,6 @@ postgres:
 application:
   image: maxi4/bitcoin-prices-app:latest
   port: 5000
+  username: "admin"
+  password: "password"
 
