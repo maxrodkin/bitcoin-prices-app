@@ -48,13 +48,21 @@ minikube   Ready    control-plane   45m   v1.30.0   192.168.49.2
 export app_ip=192.168.49.2
 ```
 or in a case of minikube 
+
 ```
 $ app_ip=$(kl get nodes -o wide --no-headers | awk -v OFS='\t\t' 'FNR > 1; {print $6}') ; echo $app_ip
 ```
 
 ## kubectl deployment
+```
 kl apply -f k8s/bitcoin-prices-app.yaml
+```
 
+## or Helm deployment
+```
+helm install my-bitcoin-app helm-chart/
+helm status my-bitcoin-app
+```  
 
 ## Let`s ping the app
 
