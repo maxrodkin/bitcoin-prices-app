@@ -33,6 +33,10 @@ spec:
     env:
     - name: SQLALCHEMY_DATABASE_URI
       value: "postgresql://username:password@localhost:5432/dbname"
+    - name: username
+      value: admin
+    - name: password
+      value: password
     ports:
     - containerPort: 5000
     readinessProbe:

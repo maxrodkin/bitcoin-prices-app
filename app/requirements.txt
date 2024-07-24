@@ -5,3 +5,4 @@ flask-jwt-extended
 apscheduler
 psycopg2-binary
 flask-sqlalchemy
+pytz

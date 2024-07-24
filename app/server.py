@@ -3,8 +3,13 @@ from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 from config import app, db, BitcoinPrice
 from datetime import datetime
+import os
 
 jwt = JWTManager(app)
+
+# Retrieve username and password from environment variables
+username = os.getenv('username', 'admin')
+password = os.getenv('password', 'password')
 
 @app.route('/ping', methods=['GET'])
 def pong():
@@ -12,8 +17,8 @@ def pong():
 
 @app.route('/login', methods=['POST'])
 def login():
-    if request.json.get('username') == 'admin' and request.json.get('password') == 'password':  # Change this to use a secure authentication mechanism in production
-        access_token = create_access_token(identity={'username': 'admin'})
+    if request.json.get('username') == username and request.json.get('password') == password:  # Change this to use a secure authentication mechanism in production
+        access_token = create_access_token(identity={'username': username})
         return jsonify(access_token=access_token)
     return jsonify({'msg': 'Bad username or password'}), 401
 
