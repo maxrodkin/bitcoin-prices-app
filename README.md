@@ -19,6 +19,14 @@ the microservice and any related additional resources should be deployed into ap
 use Helm for this deployment.
 Store the codebase in GitHub, and please share the link for the repository with us.
 
+## Design
+
+I have made this task in a very minimalistic way as a MVP:
+* Minikube was used
+* All 3 parts of app (flask, sheduled prices fetcher , db ) are in one pod as 3 containers
+* no CI/CD, deployment is manual. But easy going 8)
+  
+
 ## Build and publish docker image. You should use your own tag and login
 
 ```
@@ -30,6 +38,7 @@ docker push maxi4/bitcoin-prices-app
 ## Install minikube k8s cluster as a minimal MVP and use the kl alias to reach it
 
 ```
+curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 sudo install minikube-linux-amd64 /usr/local/bin/minikube
 sudo ln -s /usr/local/bin/minikube /usr/bin/minikube
 minikube start
@@ -37,7 +46,7 @@ alias kl="minikube kubectl -- "
 kl get ns
 ```
 
-## Get the IP of minikube controlplane
+## Get the IP of minikube controlplane as a NodePort exposes the app ip port to controlplane
 
 ```
 kl get no -o wide
@@ -47,7 +56,7 @@ minikube   Ready    control-plane   45m   v1.30.0   192.168.49.2
 ```
 export app_ip=192.168.49.2
 ```
-or in a case of minikube 
+or read it into the var 
 
 ```
 $ app_ip=$(kl get nodes -o wide --no-headers | awk -v OFS='\t\t' 'FNR > 1; {print $6}') ; echo $app_ip
@@ -106,3 +115,10 @@ $ curl -X GET http://$app_ip:30000/average_price -H "Authorization: Bearer $toke
 ```
 $ curl -X GET http://$app_ip:30000/average_price?period=monthly -H "Authorization: Bearer $token"
 ```
+
+## Destroy the app
+
+```
+helm delete my-bitcoin-app
+```
+
