@@ -1,59 +1,59 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: bitcoin-app-namespace
+  name: {{ .Values.namespace }}
 ---
 apiVersion: v1
 kind: Pod
 metadata:
   name: all-services-pod
-  namespace: bitcoin-app-namespace
+  namespace: {{ .Values.namespace }}
   labels:
     app: all-services
 spec:
   containers:
   - name: postgres
-    image: postgres:13
+    image: {{ .Values.postgres.image }}
     env:
     - name: POSTGRES_USER
-      value: "username"
+      value: "{{ .Values.postgres.user }}"
     - name: POSTGRES_PASSWORD
-      value: "password"
+      value: "{{ .Values.postgres.password }}"
     - name: POSTGRES_DB
-      value: "dbname"
+      value: "{{ .Values.postgres.db }}"
     volumeMounts:
     - name: postgres-storage
       mountPath: /var/lib/postgresql/data
     ports:
-    - containerPort: 5432
+    - containerPort: {{ .Values.postgres.port }}
 
   - name: flask-app
-    image: maxi4/bitcoin-prices-app:latest
+    image: {{ .Values.application.image }}
     command: ["python", "server.py"]
     env:
     - name: SQLALCHEMY_DATABASE_URI
-      value: "postgresql://username:password@localhost:5432/dbname"
+      value: "postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@localhost:{{ .Values.postgres.port }}/{{ .Values.postgres.db }}"
     ports:
-    - containerPort: 5000
+    - containerPort: {{ .Values.application.port }}
     readinessProbe:
       httpGet:
         path: /ping
-        port: 5000
+        port: {{ .Values.application.port }}
       initialDelaySeconds: 10
       periodSeconds: 5
     livenessProbe:
       httpGet:
         path: /ping
-        port: 5000
+        port: {{ .Values.application.port }}
       initialDelaySeconds: 15
       periodSeconds: 20
 
   - name: fetch-task
-    image: maxi4/bitcoin-prices-app:latest
+    image: {{ .Values.application.image }}
     command: ["python", "fetch_and_store_prices.py"]
     env:
     - name: SQLALCHEMY_DATABASE_URI
-      value: "postgresql://username:password@localhost:5432/dbname"
+      value: "postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@localhost:{{ .Values.postgres.port }}/{{ .Values.postgres.db }}"
 
   volumes:
   - name: postgres-storage
@@ -63,12 +63,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: flask-app-service
-  namespace: bitcoin-app-namespace
+  namespace: {{ .Values.namespace }}
 spec:
   type: NodePort
   ports:
   - port: 5000
     targetPort: 5000
-    nodePort: 30000 # NodePort range is 30000-32767
+    nodePort: 30000
   selector:
     app: all-services

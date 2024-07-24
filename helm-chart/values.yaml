@@ -1,0 +1,14 @@
+# values.yaml
+namespace: bitcoin-app-namespace
+
+postgres:
+  user: "username"
+  password: "password"
+  db: "dbname"
+  image: postgres:13
+  port: 5432
+
+application:
+  image: maxi4/bitcoin-prices-app:latest
+  port: 5000
+
