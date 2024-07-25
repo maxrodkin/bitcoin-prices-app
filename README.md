@@ -122,3 +122,22 @@ $ curl -X GET http://$app_ip:30000/average_price?period=monthly -H "Authorizatio
 helm delete my-bitcoin-app
 ```
 
+## PS
+This git branch have a Deployment instead of single add pod. the postges is in separated pod/service also.
+when i killed the app
+```
+kl delete replicaset.apps/all-services-deployment-679fcb7c79 -n bitcoin-app-namespace
+kl delete pod/all-services-deployment-679fcb7c79-9v5d7 -n bitcoin-app-namespace
+kl delete pod/all-services-deployment-679fcb7c79-lpwbm -n bitcoin-app-namespace
+```
+i expected that the aold bearer token shouldnt work , but it works again on new created pods. how the Flask store the token really??
+
+```
+curl -X GET http://$app_ip:30000/current_price -H "Authorization: Bearer $token"
+{
+  "client_request_time": "2024-07-25T12:03:17.635323",
+  "price_czk": 1503766.654698,
+  "price_eur": 59175.111209200004,
+  "server_data_time": "2024-07-25T12:02:50.873190"
+}
+```
