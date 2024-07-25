@@ -115,6 +115,17 @@ $ curl -X GET http://$app_ip:30000/average_price -H "Authorization: Bearer $toke
 ```
 $ curl -X GET http://$app_ip:30000/average_price?period=monthly -H "Authorization: Bearer $token"
 ```
+## You can play with overriding of the helm vars and create more helm deployments simulatencly
+```
+helm install helm-chart/ -f helm-chart/values.yaml -f helm-chart/override.yaml --set application.username=admin2,namespace=bitcoin-app-namespace3  --generate-name
+$ curl -X POST http://$app_ip:30412/login      -H "Content-Type: application/json"      -d '{"username":"admin", "password":"password"}'
+{
+  "msg": "Bad username or password"
+}
+$ curl -X POST http://$app_ip:30412/login      -H "Content-Type: application/json"      -d '{"username":"admin2", "password":"password"}'
+{
+  "access_token": "eyJhbGci.......
+```
 
 ## Destroy the app
 
