@@ -3,48 +3,55 @@ kind: Namespace
 metadata:
   name: bitcoin-app-namespace
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: all-services-pod
+  name: all-services-deployment
   namespace: bitcoin-app-namespace
   labels:
     app: all-services
 spec:
-  containers:
-  - name: flask-app
-    image: maxi4/bitcoin-prices-app:latest
-    command: ["python", "server.py"]
-    env:
-    - name: SQLALCHEMY_DATABASE_URI
-#      value: "postgresql://username:password@localhost:5432/dbname"
-      value: "postgresql://username:password@postgres-service:5432/dbname"      
-    - name: username
-      value: admin
-    - name: password
-      value: password
-    ports:
-    - containerPort: 5000
-    readinessProbe:
-      httpGet:
-        path: /ping
-        port: 5000
-      initialDelaySeconds: 10
-      periodSeconds: 5
-    livenessProbe:
-      httpGet:
-        path: /ping
-        port: 5000
-      initialDelaySeconds: 15
-      periodSeconds: 20
+  replicas: 2
+  selector:
+    matchLabels:
+      app: all-services
+  template:
+    metadata:
+      labels:
+        app: all-services
+    spec:
+      containers:
+      - name: flask-app
+        image: maxi4/bitcoin-prices-app:latest
+        command: ["python", "server.py"]
+        env:
+        - name: SQLALCHEMY_DATABASE_URI
+          value: "postgresql://username:password@postgres-service:5432/dbname"
+        - name: username
+          value: admin
+        - name: password
+          value: password
+        ports:
+        - containerPort: 5000
+        readinessProbe:
+          httpGet:
+            path: /ping
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /ping
+            port: 5000
+          initialDelaySeconds: 15
+          periodSeconds: 20
 
-  - name: fetch-task
-    image: maxi4/bitcoin-prices-app:latest
-    command: ["python", "fetch_and_store_prices.py"]
-    env:
-    - name: SQLALCHEMY_DATABASE_URI
-#      value: "postgresql://username:password@localhost:5432/dbname"
-      value: "postgresql://username:password@postgres-service:5432/dbname"      
+      - name: fetch-task
+        image: maxi4/bitcoin-prices-app:latest
+        command: ["python", "fetch_and_store_prices.py"]
+        env:
+        - name: SQLALCHEMY_DATABASE_URI
+          value: "postgresql://username:password@postgres-service:5432/dbname"
 
 ---
 apiVersion: v1
