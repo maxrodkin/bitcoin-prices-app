@@ -12,27 +12,13 @@ metadata:
     app: all-services
 spec:
   containers:
-  - name: postgres
-    image: postgres:13
-    env:
-    - name: POSTGRES_USER
-      value: "username"
-    - name: POSTGRES_PASSWORD
-      value: "password"
-    - name: POSTGRES_DB
-      value: "dbname"
-    volumeMounts:
-    - name: postgres-storage
-      mountPath: /var/lib/postgresql/data
-    ports:
-    - containerPort: 5432
-
   - name: flask-app
     image: maxi4/bitcoin-prices-app:latest
     command: ["python", "server.py"]
     env:
     - name: SQLALCHEMY_DATABASE_URI
-      value: "postgresql://username:password@localhost:5432/dbname"
+#      value: "postgresql://username:password@localhost:5432/dbname"
+      value: "postgresql://username:password@postgres-service:5432/dbname"      
     - name: username
       value: admin
     - name: password
@@ -57,11 +43,9 @@ spec:
     command: ["python", "fetch_and_store_prices.py"]
     env:
     - name: SQLALCHEMY_DATABASE_URI
-      value: "postgresql://username:password@localhost:5432/dbname"
+#      value: "postgresql://username:password@localhost:5432/dbname"
+      value: "postgresql://username:password@postgres-service:5432/dbname"      
 
-  volumes:
-  - name: postgres-storage
-    emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
