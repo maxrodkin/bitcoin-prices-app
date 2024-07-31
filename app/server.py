@@ -53,7 +53,7 @@ def average_price():
                 end_date = get_end_of_month(start_date)
             else:  # daily
                 start_date = datetime.strptime(date_str, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
-                end_date = start_date + timedelta(days=1)
+                end_date = start_date.replace(hour=23, minute=59, second=59, microsecond=999999)
         except ValueError:
             return jsonify({'msg': 'Invalid date format'}), 400
     else:
