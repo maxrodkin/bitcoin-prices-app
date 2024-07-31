@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request
 from flask_jwt_extended import JWTManager, jwt_required, create_access_token
 from config import app, db, BitcoinPrice
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 
 jwt = JWTManager(app)
@@ -36,17 +36,35 @@ def current_price():
     }
     return jsonify(response)
 
+def get_end_of_month(date):
+    #eturn the last moment of the current month
+    next_month = date.replace(day=28) + timedelta(days=4)  # this will always get the next month
+    return next_month.replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(microseconds=1)
+
 @app.route('/average_price', methods=['GET'])
 @jwt_required()
 def average_price():
     period = request.args.get('period', 'daily')  # 'daily' or 'monthly'
-    now = datetime.utcnow()
-    if period == 'monthly':
-        start_date = now.replace(day=1)
-    else:  # default to daily
-        start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
-
-    prices = BitcoinPrice.query.filter(BitcoinPrice.timestamp >= start_date).all()
+    date_str = request.args.get('date', None)  # 'YYYY-MM-DD' for daily or 'YYYY-MM' for monthly
+    if date_str:
+        try:
+            if period == 'monthly':
+                start_date = datetime.strptime(date_str, '%Y-%m').replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+                end_date = get_end_of_month(start_date)
+            else:  # daily
+                start_date = datetime.strptime(date_str, '%Y-%m-%d').replace(hour=0, minute=0, second=0, microsecond=0)
+                end_date = start_date.replace(hour=23, minute=59, second=59, microsecond=999999)
+        except ValueError:
+            return jsonify({'msg': 'Invalid date format'}), 400
+    else:
+        now = datetime.utcnow()
+        if period == 'monthly':
+            start_date = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            end_date = get_end_of_month(start_date)
+        else:  # default to daily
+            start_date = now.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_date = start_date + timedelta(days=1)
+    prices = BitcoinPrice.query.filter(BitcoinPrice.timestamp >= start_date, BitcoinPrice.timestamp < end_date).all()
     if not prices:
         return jsonify({'msg': 'No data available'}), 404
 
@@ -57,7 +75,9 @@ def average_price():
     response = {
         'average_price_eur': avg_price_eur,
         'average_price_czk': avg_price_czk,
-        'client_request_time': datetime.utcnow().isoformat()
+        'client_request_time': datetime.utcnow().isoformat(),
+        'start_date': start_date.isoformat(),
+        'end_date': end_date.isoformat()        
     }
     return jsonify(response)
 
